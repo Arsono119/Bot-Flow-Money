@@ -1,7 +1,9 @@
+import os
 import json
-import re
 from openai import OpenAI
-from config import GROQ_API_KEY, GROQ_MODEL
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "ISI_GROQ_API_KEY_KAMU")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama3-70b-8192")
 
 client = OpenAI(
     api_key=GROQ_API_KEY,

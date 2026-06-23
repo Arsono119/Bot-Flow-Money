@@ -1,10 +1,14 @@
+import os
 import logging
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
-from config import TELEGRAM_TOKEN
 from database import init_db, save_transaction, get_summary, get_recent_transactions, get_category_summary
 from ai_handler import parse_transaction, format_rupiah
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "ISI_TOKEN_BOT_KAMU")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "ISI_GROQ_API_KEY_KAMU")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama3-70b-8192")
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
