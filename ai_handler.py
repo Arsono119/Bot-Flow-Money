@@ -1,10 +1,13 @@
 import os
 import json
+import logging
 import requests
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "ISI_GROQ_API_KEY_KAMU")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama3-70b-8192")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """Kamu adalah asisten pencatat keuangan yang santai dan gaul.
 
@@ -52,6 +55,7 @@ def parse_transaction(text: str) -> dict | None:
             "category": result.get("category", "Lainnya"),
         }
     except Exception as e:
+        logger.error(f"Groq API error: {e}")
         return None
 
 
