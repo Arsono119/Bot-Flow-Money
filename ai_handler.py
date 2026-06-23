@@ -1,14 +1,10 @@
 import os
 import json
-from openai import OpenAI
+import requests
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "ISI_GROQ_API_KEY_KAMU")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama3-70b-8192")
-
-client = OpenAI(
-    api_key=GROQ_API_KEY,
-    base_url="https://api.groq.com/openai/v1"
-)
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 SYSTEM_PROMPT = """Kamu adalah asisten pencatat keuangan yang santai dan gaul.
 
@@ -23,44 +19,28 @@ Aturan:
 - "rb" = 000 (25rb → 25000), "jt" = 000000 (2jt → 2000000)
 - Kalau nominal disebut "dua ribu" ubah ke angka 2000
 - Kategorikan secara logis
-- Jawab PURE JSON aja, ga usah pake teks lain
-
-Contoh:
-User: "beli nasi goreng 25rb"
-→ {"type": "expense", "amount": 25000, "category": "Makanan"}
-
-User: "gajian 5jt"
-→ {"type": "income", "amount": 5000000, "category": "Gaji"}
-
-User: "tadi jualan baju laku 150rb"
-→ {"type": "income", "amount": 150000, "category": "Jualan"}
-
-User: "bayar listrik 350rb"
-→ {"type": "expense", "amount": 350000, "category": "Tagihan"}
-
-User: "dapet kiriman dari mama 200rb"
-→ {"type": "income", "amount": 200000, "category": "Kiriman"}
-
-User: "naik grab 15rb"
-→ {"type": "expense", "amount": 15000, "category": "Transport"}
-
-User: "jajan cilok 5rb"
-→ {"type": "expense", "amount": 5000, "category": "Makanan"}"""
+- Jawab PURE JSON aja, ga usah pake teks lain"""
 
 
 def parse_transaction(text: str) -> dict | None:
     try:
-        resp = client.chat.completions.create(
-            model=GROQ_MODEL,
-            messages=[
+        resp = requests.post(GROQ_URL, json={
+            "model": GROQ_MODEL,
+            "messages": [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": text},
             ],
-            response_format={"type": "json_object"},
-            temperature=0.3,
-            max_tokens=200,
-        )
-        result = json.loads(resp.choices[0].message.content)
+            "response_format": {"type": "json_object"},
+            "temperature": 0.3,
+            "max_tokens": 200,
+        }, headers={
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json",
+        }, timeout=30)
+
+        data = resp.json()
+        raw = data["choices"][0]["message"]["content"]
+        result = json.loads(raw)
 
         amount = int(result["amount"])
         if amount <= 0:
