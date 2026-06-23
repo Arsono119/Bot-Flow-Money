@@ -4,7 +4,7 @@ import logging
 import requests
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "ISI_GROQ_API_KEY_KAMU")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama3-70b-8192")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "mixtral-8x7b-32768")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 logger = logging.getLogger(__name__)
