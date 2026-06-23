@@ -1,7 +1,8 @@
-config.py
+config.local.py
 *.db
 __pycache__/
 *.pyc
 .env
 
 token.txt
+error.txt
